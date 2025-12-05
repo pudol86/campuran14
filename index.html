@@ -170,7 +170,7 @@
     <section class="player-shell">
       <div class="phone">
         <video id="video" playsinline controls poster="">
-          <source src="https://cdn.videy.co/8HpX3SaB1.mp4" type="video/mp4" />
+          <source src="https://cdn.videy.co/1AZL63e51.mp4" type="video/mp4" />
           Browser kamu tidak mendukung pemutar video HTML5.
         </video>
 	
@@ -180,6 +180,130 @@
       <div class="ad-slot">Slot Iklan 728×90 (contoh)</div>
     </section>
   </main>
+	<!-- ========== PLAYLIST VIDEO (GRID) ========== -->
+  <section class="playlist">
+    <div class="playlist-title">Video lainnya</div>
+
+    <div class="playlist-grid">
+
+      <!-- Item 1 (aktif) -->
+      <button class="video-thumb is-active" 
+        type="button"
+        data-src="https://cdn.videy.co/53fXdW0S1.mp4">
+        <video class="thumb-video"
+               src="https://cdn.videy.co/53fXdW0S1.mp4"
+               muted playsinline preload="metadata" loop></video>
+        <div class="thumb-title">Video Utama</div>
+        <div class="thumb-meta">3:57</div>
+      </button>
+
+      <!-- Item 2 -->
+      <button class="video-thumb" 
+        type="button"
+        data-src="https://cdn.videy.co/MfexOmXN1.mp4">
+        <video class="thumb-video"
+               src="https://cdn.videy.co/MfexOmXN1.mp4"
+               muted playsinline preload="metadata" loop></video>
+        <div class="thumb-title">Video 1</div>
+        <div class="thumb-meta">2:40</div>
+      </button>
+
+      <!-- Item 3 -->
+      <button class="video-thumb" 
+        type="button"
+        data-src="https://cdn.videy.co/35wbxQv71.mp4">
+        <video class="thumb-video"
+               src="https://cdn.videy.co/35wbxQv71.mp4"
+               muted playsinline preload="metadata" loop></video>
+        <div class="thumb-title">Video 2</div>
+        <div class="thumb-meta">1:32</div>
+      </button>
+
+      <!-- Item 4 -->
+      <button class="video-thumb" 
+        type="button"
+        data-src="https://cdn.videy.co/gDRdNSB71.mp4">
+        <video class="thumb-video"
+               src="https://cdn.videy.co/gDRdNSB71.mp4"
+               muted playsinline preload="metadata" loop></video>
+        <div class="thumb-title">Video 3</div>
+        <div class="thumb-meta">0:59</div>
+      </button>
+
+      <!-- Tambah item lagi di sini kalau mau -->
+
+    </div>
+  </section>
+
+</section>
+</main>
+
+<!-- ========== SCRIPT PLAYER & PLAYLIST ========== -->
+<script>
+const v = document.getElementById("video");
+const videoSource = document.getElementById("videoSource");
+const meta = document.querySelector(".meta");
+
+function fmt(t){
+  const m = Math.floor(t/60);
+  const s = Math.floor(t%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+v.addEventListener("loadedmetadata", ()=>{
+  if (!isFinite(v.duration)) return;
+  meta.textContent = `0:00 / ${fmt(v.duration)}`;
+});
+v.addEventListener("timeupdate", ()=>{
+  if (!isFinite(v.duration)) return;
+  meta.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+});
+
+/* ===== GANTI VIDEO UTAMA SAAT THUMBNAIL DIKLIK ===== */
+const thumbs = document.querySelectorAll(".video-thumb");
+
+thumbs.forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+
+    const src = btn.dataset.src;
+    if (!src) return;
+
+    thumbs.forEach(b=>b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+
+    if (videoSource.getAttribute("src") !== src){
+      videoSource.src = src;
+      v.load();
+      v.play().catch(()=>{});
+      meta.textContent = "Memuat video...";
+    }
+  });
+});
+
+/* ===== AUTOPLAY PREVIEW PLAYLIST (MUTE) ===== */
+const previewVideos = document.querySelectorAll(".thumb-video");
+
+if ("IntersectionObserver" in window) {
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const vid = entry.target;
+      if (entry.isIntersecting) {
+        vid.play().catch(()=>{});
+      } else {
+        vid.pause();
+      }
+    });
+  }, { threshold: 0.6 });
+
+  previewVideos.forEach(vid => observer.observe(vid));
+} else {
+  // fallback: hover
+  previewVideos.forEach(vid=>{
+    vid.addEventListener("mouseenter", ()=> vid.play().catch(()=>{}));
+    vid.addEventListener("mouseleave", ()=> vid.pause());
+  });
+}
+</script>
 
   <script>
     // Update teks durasi kecil
